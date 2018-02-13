@@ -16,5 +16,15 @@ public class Milestone5Tests {
 		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
 		analyzerCollection.run(data);
 	}
+	
+	@Test
+	public void TrainwreckTest() {
+		String[] args = new String[] { "-config", "PropertiesFiles/TrainwreckTest" };
+		Preprocessor pre = new Preprocessor();
+		Data data = new Data();
+		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
+		analyzerCollection.run(data);
+	}
+
 
 }

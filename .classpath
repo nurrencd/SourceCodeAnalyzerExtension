@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Users/nurrencd/Downloads/uml.jar"/>
+	<classpathentry kind="lib" path="C:/Users/moormaet/Documents/uml.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
