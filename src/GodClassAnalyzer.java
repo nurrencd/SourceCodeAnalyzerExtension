@@ -13,8 +13,15 @@ import soot.Scene;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.Unit;
+import soot.Value;
+import soot.jimple.AssignStmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.InvokeStmt;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
 
 public class GodClassAnalyzer extends AbstractAnalyzer {
 	private Pattern pattern;
@@ -32,9 +39,15 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 			
 			// calculate dependencies, ATFD
 			int dependencyCount = calculateATFD(data, c);
+			
 			System.out.println(c.getName() + ": " + dependencyCount + " dependencies");
 			
-			if (tccValue < .333f && dependencyCount > 5) {
+			// calculate dependencies, ATFD
+			int complexity = calculateComplexity(data, c);
+						
+			System.out.println(c.getName() + ": " + complexity + " complexity");
+			
+			if (tccValue < .333f && dependencyCount > 5 && complexity >= 47) {
 				// this is a god class
 				pattern.addClass("god", c);
 			}
@@ -43,11 +56,36 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 		return data;
 	}
 
+	private int calculateComplexity(Data data, SootClass c) {
+		Scene scene = data.get("scene", Scene.class);
+		int count = 1;
+		for (SootMethod m : c.getMethods()) {
+			int sum = 1;
+			if (!m.hasActiveBody()) {
+				continue;
+			}
+			UnitGraph ug = new ExceptionalUnitGraph(m.getActiveBody());
+			for (Unit u : ug) {
+				if (u.branches()) {
+					sum *= 2;
+				}
+			}
+			count += sum;
+		}
+		return count;
+	}
+	
+	
+
 	private float calculateTCC(Data data, SootClass c) {
 		float count;
 		Scene scene = data.get("scene", Scene.class);
 		CallGraph cg = scene.getCallGraph();
 
+		if (c.getFieldCount() == 0) {
+			return 1;
+		}
+		
 		List<Integer> values = new ArrayList<Integer>();
 
 		Collection<String> fieldClasses = new HashSet<String>();
@@ -57,20 +95,37 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 
 		for (SootMethod m : c.getMethods()) {
 			int localMethodCount = 0;
-			Iterator<Edge> iter = cg.edgesOutOf(m);
-			Edge e;
-			while (iter.hasNext()) {
-				e = iter.next();
-				SootClass target = e.getTgt().method().getDeclaringClass();
-				if (fieldClasses.contains(target.getName())) {
-					localMethodCount++;
+			if (!m.hasActiveBody()) {
+				continue;
+			}
+			UnitGraph ug = new ExceptionalUnitGraph(m.getActiveBody());
+			
+			for (Unit u : ug) {
+				if (u instanceof AssignStmt) {
+					Value leftOp = ((AssignStmt) u).getLeftOp();
+					if (!((AssignStmt) u).containsInvokeExpr()) {
+						continue;
+					}
+					InvokeExpr rightOp = ((AssignStmt) u).getInvokeExpr();
+					SootMethod meth = rightOp.getMethod();
+					if (fieldClasses.contains(meth.getDeclaringClass().getName())) {
+						localMethodCount++;
+					}
+					
+				}else if (u instanceof InvokeStmt) {
+					InvokeExpr rightOp = ((InvokeStmt) u).getInvokeExpr();
+					SootMethod meth = rightOp.getMethod();
+					if (fieldClasses.contains(meth.getDeclaringClass().getName())) {
+						localMethodCount++;
+					}
 				}
 			}
 			values.add(localMethodCount);
 		}
-
+		
 		count = 0;
 		int total = values.stream().mapToInt(Integer::intValue).sum();
+		System.out.println(total + "   " + fieldClasses.size());
 		return ((float) total) / fieldClasses.size();
 
 	}

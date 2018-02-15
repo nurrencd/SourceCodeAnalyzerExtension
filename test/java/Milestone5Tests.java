@@ -19,7 +19,7 @@ public class Milestone5Tests {
 	
 	@Test
 	public void godClassTestOurProject() {
-		String[] args = new String[] { "-config", "PropertiesFiles/TrainwreckTest" };
+		String[] args = new String[] { "-config", "PropertiesFiles/GodClassTest2" };
 		Preprocessor pre = new Preprocessor();
 		Data data = new Data();
 		AnalyzerChain analyzerCollection = pre.makePileline(args, data);

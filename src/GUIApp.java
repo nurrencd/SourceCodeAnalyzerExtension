@@ -1,8 +1,11 @@
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
@@ -11,6 +14,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -19,15 +23,42 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 
+import design.team.nothing.AnalyzerChain;
+import design.team.nothing.Data;
+import design.team.nothing.Preprocessor;
+import javafx.scene.control.RadioButton;
+
 public class GUIApp {
+	
+	public static final List<String> PROPERTIES = Collections.unmodifiableList(Arrays.asList(
+			"path", "uml", "recursive", "depth",
+			"classlist", "exclude", "sequence",
+			"main", "filters", "java", "pattern", "resolutionstrategy",
+			"algorithms", "synthetic"));
+	
+	public static final List<String> TEXTAREACOMPONENTS = Collections.unmodifiableList(Arrays.asList(
+			"classlist", "exclude", "filters", "pattern", "resolutionstrategy", "algorithms", "depth"
+			));
+	
+	public static final List<String> FILECOMPONENTS = Collections.unmodifiableList(Arrays.asList(
+			"path", "main"
+			));
+	
+	public static final List<String> BUTTONCOMPONENTS = Collections.unmodifiableList(Arrays.asList(
+			"uml", "recursive", "sequence", "java", "synthetic"
+			));
+	
+	
+	
+	
 	private Prompt p;
 	private FileManager m;
 	private Compiler c;
 	private JFrame frame;
 	private String currentFile;
-	private ButtonGroup group;
 
 	private Map<String, JTextArea> compMap = new HashMap<>();
+	private Map<String, JCheckBox> buttonMap = new HashMap<>();
 
 	public GUIApp(Prompt p, FileManager m, Compiler c) {
 		this.p = p;
@@ -64,19 +95,13 @@ public class GUIApp {
 			if (response != null) {
 				System.out.println(response);
 				map = this.m.load(response);
+				for (JCheckBox box : this.buttonMap.values()) {
+					box.setSelected(false);
+				}
 				for (String key : map.keySet()) {
-					if (key.equals("uml")||key.equals("sequence")) {
-						Enumeration<AbstractButton> enumz = this.group.getElements();
-						while (enumz.hasMoreElements()) {
-							AbstractButton b = enumz.nextElement();
-							System.out.println(b.getText().toLowerCase().trim());
-							if (b.getText().toLowerCase().trim().equals(key)) {
-								b.setSelected(true);
-							}
-							else {
-								b.setSelected(false);
-							}
-						}
+					System.out.println(key);
+					if (buttonMap.containsKey(key)) {
+						buttonMap.get(key).setSelected(true);
 					}
 					if (!compMap.containsKey(key)) {
 						continue;
@@ -98,11 +123,9 @@ public class GUIApp {
 				for (String key : this.compMap.keySet()) {
 					map.put(key, this.compMap.get(key).getText());
 				}
-				Enumeration<AbstractButton> enu = this.group.getElements();
-				while (enu.hasMoreElements()) {
-					AbstractButton b = enu.nextElement();
-					if (b.isSelected()) {
-						map.put(b.getText().trim().toLowerCase(), "true");
+				for (String key : this.buttonMap.keySet()) {
+					if (this.buttonMap.get(key).isSelected()) {
+						map.put(key, "true");
 					}
 				}
 				this.m.save(filepath + "/" + response, this.c.compile(map));
@@ -126,40 +149,34 @@ public class GUIApp {
 		panel.setPreferredSize(new Dimension(800, 600));
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		JComponent dirPanel = createPromptPanel("Path", JFileChooser.DIRECTORIES_ONLY);
-		JComponent mainPanel = createPromptPanel("Main", JFileChooser.FILES_ONLY);
-
-		JComponent exclusionsPanel = createPropertyPanel("Exclude: ");
-		JComponent inclusionsPanel = createPropertyPanel("Classlist: ");
-		JComponent patternsPanel = createPropertyPanel("Pattern: ");
-
-		JComponent umlPanel = new JPanel();
-		umlPanel.setPreferredSize(new Dimension(800, 50));
-		umlPanel.setLayout(new BoxLayout(umlPanel, BoxLayout.X_AXIS));
-		JRadioButton umlRadio = new JRadioButton(" UML", true);
-		JRadioButton seqRadio = new JRadioButton(" Sequence", false);
-		this.group = new ButtonGroup();
-		this.group.add(umlRadio);
-		this.group.add(seqRadio);
+		for (String name : this.FILECOMPONENTS) {
+			int function = JFileChooser.FILES_ONLY;
+			if (name.equals("path")) {
+				function = JFileChooser.DIRECTORIES_ONLY;
+			}
+			panel.add(createPromptPanel(name, function));
+			panel.add(Box.createRigidArea(new Dimension(5, 10)));
+		}
 		
-		umlPanel.add(umlRadio);
-		umlPanel.add(seqRadio);
-
-		panel.add(dirPanel);
-		panel.add(Box.createRigidArea(new Dimension(5, 10)));
-		panel.add(mainPanel);
-		panel.add(Box.createRigidArea(new Dimension(5, 10)));
-		panel.add(exclusionsPanel);
-		panel.add(Box.createRigidArea(new Dimension(5, 30)));
-		panel.add(inclusionsPanel);
-		panel.add(Box.createRigidArea(new Dimension(5, 30)));
-		panel.add(patternsPanel);
-		panel.add(Box.createRigidArea(new Dimension(5, 30)));
-		panel.add(umlPanel);
+		for (String name : this.TEXTAREACOMPONENTS) {
+			panel.add(createPropertyPanel(name));
+			panel.add(Box.createRigidArea(new Dimension(5, 10)));
+		}
+		
+		for (String name : this.BUTTONCOMPONENTS) {
+			panel.add(createButton(name));
+			panel.add(Box.createRigidArea(new Dimension(5, 10)));
+		}
 
 		panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		return panel;
 
+	}
+	
+	private JComponent createButton(String title) {
+		JCheckBox button = new JCheckBox(title);
+		this.buttonMap.put(title, button);
+		return button;
 	}
 
 	private JComponent createPromptPanel(String title, int type) {
@@ -188,9 +205,9 @@ public class GUIApp {
 		JComponent exclusionsPanel = new JPanel();
 		exclusionsPanel.setPreferredSize(new Dimension(800, 100));
 		exclusionsPanel.setLayout(new BoxLayout(exclusionsPanel, BoxLayout.X_AXIS));
-		exclusionsPanel.add(new JLabel(tag));
+		exclusionsPanel.add(new JLabel(tag + ": "));
 		JTextArea exclusionsArea = new JTextArea();
-		compMap.put(tag.substring(0, tag.length() - 2).toLowerCase(), exclusionsArea);
+		compMap.put(tag.toLowerCase(), exclusionsArea);
 		exclusionsArea.setEditable(true);
 		exclusionsPanel.add(exclusionsArea);
 		return exclusionsPanel;
@@ -202,12 +219,28 @@ public class GUIApp {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		JButton newButton = new JButton("Run");
-		panel.add(newButton);
+		JButton runButton = new JButton("Run");
+		runButton.addActionListener((a) -> {
+			Map<String, String> map = new HashMap<String, String>();
+			for (String key : this.compMap.keySet()) {
+				map.put(key, this.compMap.get(key).getText());
+			}
+			for (String key : this.buttonMap.keySet()) {
+				if (this.buttonMap.get(key).isSelected()) {
+					map.put(key, "true");
+				}
+			}
+			this.m.save("PropertiesFiles/Runner", this.c.compile(map));
+			String[] args = new String[] { "-config", "PropertiesFiles/Runner" };
+			Preprocessor pre = new Preprocessor();
+			Data data = new Data();
+			AnalyzerChain analyzerCollection = pre.makePileline(args, data);
+			analyzerCollection.run(data);
+		});
+		panel.add(runButton);
 
 		panel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		return panel;
-
 	}
 
 }
