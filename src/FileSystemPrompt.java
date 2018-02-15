@@ -17,6 +17,9 @@ public class FileSystemPrompt implements Prompt {
 		fileSelector.setFileSelectionMode(selectionMode);
 		fileSelector.showOpenDialog(null);
 		File f = fileSelector.getSelectedFile();
+		if (f==null) {
+			return null;
+		}
 		return f.getAbsolutePath();
 	}
 
