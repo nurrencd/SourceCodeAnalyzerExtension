@@ -18,7 +18,7 @@ public class Milestone5Tests {
 	}
 	
 	@Test
-	public void TrainwreckTest() {
+	public void godClassTestOurProject() {
 		String[] args = new String[] { "-config", "PropertiesFiles/TrainwreckTest" };
 		Preprocessor pre = new Preprocessor();
 		Data data = new Data();
