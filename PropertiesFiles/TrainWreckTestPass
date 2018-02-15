@@ -1,5 +1,5 @@
 path=C:/Users/moormaet/workspace/CSSE 374/LiveCoding2-3/bin
 uml=true
-exclude=solution*
+exclude=problem*
 main=problem.Application
 pattern=TrainwreckAnalyzer

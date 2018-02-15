@@ -25,6 +25,24 @@ public class Milestone5Tests {
 		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
 		analyzerCollection.run(data);
 	}
-
+	
+	@Test
+	public void TrainwreckTestFail() {
+		String[] args = new String[] { "-config", "PropertiesFiles/TrainWreckTest" };
+		Preprocessor pre = new Preprocessor();
+		Data data = new Data();
+		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
+		analyzerCollection.run(data);
+	}
+	
+	@Test
+	public void TrainwreckTestPass() {
+		String[] args = new String[] { "-config", "PropertiesFiles/TrainWreckTestPass" };
+		Preprocessor pre = new Preprocessor();
+		Data data = new Data();
+		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
+		analyzerCollection.run(data);
+	}
+	
 
 }

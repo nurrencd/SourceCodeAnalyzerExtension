@@ -48,6 +48,7 @@ public class TrainwreckAnalyzer extends AbstractAnalyzer{
 	private void checkMethod(SootMethod m, Scene scene, Collection<Relationship> relationships) {
 		Collection<String> localFriends = new HashSet<>(friends);
 		
+		
 		CallGraph cg = scene.getCallGraph();
 		
 		for (Type t : m.getParameterTypes()) {
@@ -86,14 +87,15 @@ public class TrainwreckAnalyzer extends AbstractAnalyzer{
 				}
 			}
 		}
-		
+//		/System.out.println("Class: " + m.getName() + " Has Friends " + localFriends + "--------------" + m.getDeclaringClass().toString());
 		for (Unit u : ug) {
 			edges = cg.edgesOutOf(u);
 			while (edges.hasNext()) {
 				Edge e = edges.next();
 				SootMethod meth = e.getTgt().method();
 				if (!localFriends.contains(meth.getDeclaringClass().getName())) {
-					classValid = true;
+					
+					System.out.println("Trainwreck: " + m.getDeclaringClass().getName() + " To " + meth.getDeclaringClass().getName());
 					for (Relationship r : relationships) {
 						if (r.from.getName().equals(m.getDeclaringClass().getName()) 
 								&& r.to.getName().equals(meth.getDeclaringClass().getName())) {
@@ -114,14 +116,33 @@ public class TrainwreckAnalyzer extends AbstractAnalyzer{
 					continue;
 				}
 				SootClass c = scene.getSootClass(str);
-				if (c.isJavaLibraryClass()) {
+				if (c.isJavaLibraryClass() || c.getName().contains("$") || c.getName().equals("double")) {
 					continue;
 				}
 				if (!localFriends.contains(str)) {
-					classValid = true;
+					System.out.println("Trainwreck: " + m.getDeclaringClass().getName() + " To " + str);
 					for (Relationship r : relationships) {
 						if (r.from.getName().equals(m.getDeclaringClass().getName()) 
 								&& r.to.getName().equals(str)) {
+							if (r.type == RelationshipType.DEPENDENCY_ONE_TO_MANY ||
+									r.type == RelationshipType.DEPENDENCY_ONE_TO_ONE) {
+								classValid = true;
+								pattern.addRelationship("trainwreck", r);
+							}
+						}
+					}
+				}
+			}else if (u instanceof InvokeStmt) {
+				InvokeStmt invoke = (InvokeStmt) u;
+				SootClass clazz = invoke.getInvokeExpr().getMethod().getDeclaringClass();
+				if (clazz.isJavaLibraryClass() || clazz.getName().contains("$") || clazz.getName().equals("double")) {
+					continue;
+				}
+				if (!localFriends.contains(clazz.getName())) {
+					System.out.println("Trainwreck: " + m.getDeclaringClass().getName() + " To " + clazz.getName());
+					for (Relationship r : relationships) {
+						if (r.from.getName().equals(m.getDeclaringClass().getName()) 
+								&& r.to.getName().equals(clazz.getName())) {
 							if (r.type == RelationshipType.DEPENDENCY_ONE_TO_MANY ||
 									r.type == RelationshipType.DEPENDENCY_ONE_TO_ONE) {
 								classValid = true;
