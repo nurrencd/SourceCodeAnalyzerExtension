@@ -1,7 +1,7 @@
 This application utilizes the previously made RevEngd project to add some new features.  This application adds support for both God Class detection and Trainwreck detection. 
 Additionally, this application supports a new GUI interface for utilizing the software.
 
-UML Class Diagram: <a href=https://tinyurl.com/y8dzbtkk>here</a>
+UML Class Diagram: <a href=https://tinyurl.com/nothing-extension>here</a>
 
 
 To Run the project:
