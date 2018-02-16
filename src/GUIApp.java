@@ -30,12 +30,6 @@ import javafx.scene.control.RadioButton;
 
 public class GUIApp {
 	
-	public static final List<String> PROPERTIES = Collections.unmodifiableList(Arrays.asList(
-			"path", "uml", "recursive", "depth",
-			"classlist", "exclude", "sequence",
-			"main", "filters", "java", "pattern", "resolutionstrategy",
-			"algorithms", "synthetic"));
-	
 	public static final List<String> TEXTAREACOMPONENTS = Collections.unmodifiableList(Arrays.asList(
 			"classlist", "exclude", "filters", "pattern", "resolutionstrategy", "algorithms", "depth"
 			));

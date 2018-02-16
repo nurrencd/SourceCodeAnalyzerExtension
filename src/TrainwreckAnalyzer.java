@@ -23,8 +23,8 @@ import soot.toolkits.graph.UnitGraph;
 
 public class TrainwreckAnalyzer extends AbstractAnalyzer{
 
-	Collection<String> friends = new HashSet<>(); 
-	Pattern pattern;
+	private Collection<String> friends = new HashSet<>(); 
+	private Pattern pattern;
 	
 	@Override
 	public Data analyze(Data data) {
