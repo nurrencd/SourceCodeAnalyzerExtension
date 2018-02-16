@@ -18,7 +18,7 @@ public class Milestone5Tests {
 	}
 	
 	@Test
-	public void godClassTestOurProject() {
+	public void godClassTestLab3() {
 		String[] args = new String[] { "-config", "PropertiesFiles/GodClassTest2" };
 		Preprocessor pre = new Preprocessor();
 		Data data = new Data();
@@ -43,6 +43,4 @@ public class Milestone5Tests {
 		AnalyzerChain analyzerCollection = pre.makePileline(args, data);
 		analyzerCollection.run(data);
 	}
-	
-
 }

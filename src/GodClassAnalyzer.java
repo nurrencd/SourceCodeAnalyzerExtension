@@ -42,19 +42,15 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 		for (SootClass c : classes) {
 			// check TCC
 			float tccValue = calculateTCC(data, c);
-			System.out.println(c.getName() + ": " + tccValue+ " tccs");
 			
 			// calculate dependencies, ATFD
 			int dependencyCount = calculateATFD(data, c);
 			
-			System.out.println(c.getName() + ": " + dependencyCount + " dependencies");
-			
 			// calculate dependencies, ATFD
 			int complexity = calculateComplexity(data, c);
-						
-			System.out.println(c.getName() + ": " + complexity + " complexity");
+					
 			
-			if (tccValue < .3f && dependencyCount > 5 && complexity >= 100) {
+			if (tccValue < .25f && dependencyCount > 5 && complexity >= 100) {
 				// this is a god class
 				pattern.addClass("god", c);
 			}
@@ -134,7 +130,6 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 		int total = values.stream().mapToInt(Integer::intValue).sum();
 		System.out.println(total + "   " + fieldClasses.size());
 		return ((float) total) / fieldClasses.size();
-
 	}
 	
 	private int calculateATFD(Data data, SootClass c) {

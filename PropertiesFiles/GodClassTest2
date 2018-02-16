@@ -1,4 +1,4 @@
-path=C:/Users/moormaet/Documents/GitHub/term-project/bin
+path=C:/Users/moormaet/workspace/CSSE 374/Lab3-1/bin
 uml=true
-main=design.team.nothing.App
+main=problem.TextEditorApp
 pattern=GodClassAnalyzer
