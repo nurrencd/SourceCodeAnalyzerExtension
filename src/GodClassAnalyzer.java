@@ -23,6 +23,13 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.graph.UnitGraph;
 
+
+/*
+ * Metrics and values credited to PMD, with the reference found at https://stackoverflow.com/questions/37389376/pmd-rule-god-class-understanding-the-metrics/37390586
+ * Metrics and descriptions found at https://pmd.github.io/pmd-5.8.1/pmd-java/rules/java/design.html#GodClass
+ */
+
+
 public class GodClassAnalyzer extends AbstractAnalyzer {
 	private Pattern pattern;
 
@@ -47,7 +54,7 @@ public class GodClassAnalyzer extends AbstractAnalyzer {
 						
 			System.out.println(c.getName() + ": " + complexity + " complexity");
 			
-			if (tccValue < .333f && dependencyCount > 5 && complexity >= 47) {
+			if (tccValue < .3f && dependencyCount > 5 && complexity >= 100) {
 				// this is a god class
 				pattern.addClass("god", c);
 			}
