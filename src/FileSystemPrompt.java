@@ -4,6 +4,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class FileSystemPrompt implements Prompt {
+	private int promptType;
+	
+	public FileSystemPrompt(int i) {
+		this.promptType = i;
+	}
 
 	@Override
 	public String getString(String prompt) {
@@ -12,15 +17,15 @@ public class FileSystemPrompt implements Prompt {
 	}
 
 	@Override
-	public String getFilePath(String prompt, int selectionMode) {
+	public String getFilePath(String prompt) {
 		JFileChooser fileSelector = new JFileChooser();
-		fileSelector.setFileSelectionMode(selectionMode);
+		fileSelector.setFileSelectionMode(this.promptType);
 		fileSelector.showOpenDialog(null);
 		File f = fileSelector.getSelectedFile();
 		if (f==null) {
 			return null;
 		}
-		return f.getAbsolutePath();
+		return f.getAbsolutePath().replaceAll("\\\\", "/");
 	}
 
 }
